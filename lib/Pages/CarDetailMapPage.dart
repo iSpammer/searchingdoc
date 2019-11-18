@@ -57,6 +57,9 @@ class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
   @override
   initState() {
     super.initState();
+    polylines.clear();
+    polylineCoordinates.clear();
+    polylineCoordinates.clear();
     _getDeviceLocation();
     //By5aly sort el pin el a7mar tb2a sort el 3rbya el safra zy uber kda
     BitmapDescriptor.fromAssetImage(
@@ -68,6 +71,7 @@ class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
     );
     setState(
           () {
+
             //by fetch el 3rbyat mn database
         _getCarData();
       },
@@ -75,7 +79,6 @@ class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
   }
 
   _getCarData() async {
-    //print("reemo $response");
      setState(() {
        _getPolyline(double.parse(widget.car['car_lat']), double.parse(widget.car['car_long']));
        markers.add(
@@ -204,7 +207,6 @@ class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
   _getPolyline(double destLat, double destLong)async
   {
     _getDeviceLocation();
-    polylines.clear();
     List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(googleAPiKey,
         latitudeCurrent, longitudeCurrent, destLat, destLong);
     if(result.isNotEmpty){
