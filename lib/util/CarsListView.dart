@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gocars/Pages/CarDetailsPage.dart';
+import 'package:gocars/api/api.dart';
 
 class CarsListView extends StatefulWidget {
 
@@ -52,7 +53,7 @@ class _CarsListViewState extends State<CarsListView> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.asset(
-                      "http://192.168.64.2/signaling/images/${widget.list[i]['car_img_path']}",
+                      "${CallApi().url}/img/${widget.list[i]['car_img_path']}",
                       height: 240,
                       width: 280,
                       fit: BoxFit.cover,

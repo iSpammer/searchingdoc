@@ -5,9 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gocars/Main/HomePage.dart';
 import 'package:gocars/Utils/button.dart';
 import 'package:gocars/Utils/modal_progress_hud.dart';
+import 'package:gocars/api/api.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'LoginScreen.dart';
 
@@ -42,49 +45,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   save() async {
-    FormData formData = new FormData.from(
-      {
-        "name": name,
-        "email": email,
-        "mobile": mobile,
-        "password": password,
-        "age": age,
-        "nat": nation,
-        "fcm_token": "test_fcm_token"
-      },
-    );
 
-    Dio dio = new Dio();
-    final response = await dio.post(
-      "http://192.168.64.2/signaling/register.php",
-      data: formData,
-      options: Options(
-        headers: {
-          HttpHeaders.contentLengthHeader:
-              formData.length, // set content-length
-        },
-      ),
-    );
-    print(response.data + "asd");
-    final data = jsonDecode(response.data);
-    int value = data['value'];
-    String message = data['message'];
+
+    var data = {
+      "name": name,
+      "email": email,
+      "phone": mobile,
+      "password": password,
+      "age": age,
+      "nation": nation,
+    };
+
+    var res = await CallApi().postData(data, 'register');
+    var body = json.decode(res.body);
+    print("meaaaw $body");
+    if(body['success']){
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.setString('token', body['token']);
+      print("${json.encode(body['user'])} meaaaaaw");
+      localStorage.setString('user', json.encode(body['user']));
+      setState(() {
+        Navigator.push(
+            context,
+            new CupertinoPageRoute(
+                builder: (context) => HomePage()));
+      });
+      registerToast("Please login using $email");
+    }
+    else{
+      registerToast("Error Ocured");
+
+    }
+
     setState(() {
       _showSpinner = false;
     });
-    if (value == 1) {
-      setState(() {
-        Navigator.pop(context);
-      });
-      print(message);
-      registerToast(message);
-    } else if (value == 2) {
-      print(message);
-      registerToast(message);
-    } else {
-      print(message);
-      registerToast(message);
-    }
+
   }
 
   registerToast(String toast) {

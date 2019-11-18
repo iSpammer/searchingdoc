@@ -2,7 +2,7 @@ import 'dart:math';
 
 List cars = [
   {
-    "uid": 0,
+    "id": 0,
     "car_name": "Mercedes W124",
     "car_img_path": "images/merc.jpg",
     "otherImg": [
@@ -15,7 +15,7 @@ List cars = [
         "W124 is the Mercedes-Benz internal chassis-designation for the 1984/85 to 1995/96 version of the Mercedes-Benz E-Class, as well as the first generation to be officially referred to as E-Class. The W124 models replaced the W123 models after 1985 and were succeeded by the W210 E-Class after 1995."
   },
   {
-    "uid": 1,
+    "id": 1,
     "car_name": "Kia Rio",
     "car_img_path": "images/rio.jpg",
     "otherImg": [
@@ -27,7 +27,7 @@ List cars = [
         "The Kia Rio is a subcompact car produced by the South Korean manufacturer Kia Motors since November 1999 and now in its fourth generation. Body styles have included a three and five-door hatchback and four-door sedan, equipped with inline-four gasoline and diesel engines, and front-wheel drive."
   },
   {
-    "uid": 2,
+    "id": 2,
     "car_name": "Chevorlet Optra",
     "car_img_path": "images/optra.jpg",
     "otherImg": ["images/optra1.jpg", "images/optra2.jpg"],
@@ -35,7 +35,7 @@ List cars = [
         "The Chevrolet Optra is an automotive nameplate used by the Chevrolet marque for two different compact car models, in the following markets: Daewoo Lacetti (2004-2013), in markets such as U.S.A, Colombia, Canada, Mexico, Japan and Southeast Asia."
   },
   {
-    "uid": 3,
+    "id": 3,
     "car_name": "Mercedes W140",
     "car_img_path": "images/w140.jpg",
     "otherImg": [

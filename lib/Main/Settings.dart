@@ -135,7 +135,7 @@ class _SettingsState extends State<Settings> {
                     for (int i = 0; i < cars.length; i++) {
                       Map car = cars[i];
                       //print("meaw $car");
-                      if (car["uid"].toString() == favs[index]) {
+                      if (car["id"].toString() == favs[index]) {
                         return Padding(
                           padding: EdgeInsets.only(right: 20),
                           child: GestureDetector(
@@ -144,7 +144,8 @@ class _SettingsState extends State<Settings> {
                                 MaterialPageRoute(
                                   builder: (BuildContext context) =>
                                       CarsDetailPage(
-                                    car: car['uid'],
+                                    car: car['id'].toString(),
+                                        cars: cars,
                                   ),
                                 ),
                               );

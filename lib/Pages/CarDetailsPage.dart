@@ -1,15 +1,24 @@
+import 'dart:convert';
 import 'dart:math';
-
+import 'package:flutter_svg/svg.dart';
+import 'package:gocars/Utils/button.dart';
+import 'package:gocars/api/api.dart';
+import 'package:http/http.dart' as http;
+import 'package:basic_utils/basic_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gocars/Pages/CarDetailMapPage.dart';
 import 'package:gocars/Pages/CarPictureDisplay.dart';
 import 'package:gocars/Pages/MapsPage.dart';
 import 'package:gocars/widgets/badge.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:morpheus/morpheus.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class CarsDetailPage extends StatefulWidget {
   final dynamic car;
@@ -27,21 +36,60 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
   double longitudeCurrent = 31.0133856;
   String distance = "";
   String time = "";
+  String comment = "";
+  int rating = 3;
+  double defaultRating = 5;
+  bool _showSpinner = false;
+  final _formKey = GlobalKey<FormState>();
+
+  var userData;
+
+  List comments = new List();
+  List users = new List();
+  var isLoading = false;
+
   @override
-  initState()  {
+  initState() {
     super.initState();
+    fetchUsers();
+    fetchComments();
     _getDeviceLocation();
+    _getUserInfo();
     //response.data['rows'][0]['elements'][0]['distance']['text']
   }
-  getDistance() async{
-    Dio dio = new Dio();
-    Response response= await dio.get("https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=$latitudeCurrent,$longitudeCurrent&destinations=${widget.car['car_lat']},${widget.car['car_long']}&key=AIzaSyCJLNSD5zB42B-Ubd-Lr0LPQsrlVtQHCXo");
-    print (response.data);
-    setState(() {
-      distance = response.data['rows'][0]['elements'][0]['distance']['text'];
-      time = response.data['rows'][0]['elements'][0]['duration']['text'];
-    });
 
+  void _getUserInfo() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var userJson = localStorage.getString('user');
+    var user = json.decode(userJson);
+    setState(() {
+      userData = user;
+    });
+  }
+
+  check() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      postComment();
+    } else {
+      setState(() {
+        _showSpinner = false;
+      });
+    }
+  }
+
+  getDistance() async {
+    Dio dio = new Dio();
+    Response response = await dio.get(
+        "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=$latitudeCurrent,$longitudeCurrent&destinations=${widget.car['car_lat']},${widget.car['car_long']}&key=AIzaSyCJLNSD5zB42B-Ubd-Lr0LPQsrlVtQHCXo");
+    // print(response.data);
+    setState(() {
+      try {
+        distance = response.data['rows'][0]['elements'][0]['distance']['text'];
+        time = response.data['rows'][0]['elements'][0]['duration']['text'];
+      } catch (e) {}
+    });
   }
 
   void _getDeviceLocation() async {
@@ -58,13 +106,10 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
     });
   }
 
-
   Future<bool> _saveFavList(int carUid) async {
-    print("favs 1");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> temp = (prefs.getStringList('fav') ?? List<String>());
     List<int> list = temp.map((i) => int.parse(i)).toList();
-    print("asddd $list");
     if (list == null) {
       return prefs.setStringList("fav", ["$carUid"]);
     } else {
@@ -74,9 +119,61 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
     }
   }
 
+  fetchComments() async {
+    setState(() {
+      isLoading = true;
+    });
+    final response = await http.get("${CallApi().url}/comments");
+    if (response.statusCode == 200) {
+      comments = json.decode(response.body) as List;
+      int i = 0;
+      while (i < comments.length) {
+        if (comments[i]['car_id'] != widget.car['id']) {
+          comments.removeAt(i);
+        } else {
+          i++;
+        }
+      }
+
+//      print(defaultRating);
+      comments.forEach((comment) {
+//        print("${comment['rating']} meaw");
+        defaultRating+= comment['rating'];
+      });
+//      print(defaultRating);
+
+      setState(() {
+        defaultRating = defaultRating / comments.length;
+      });
+
+//      print("$comments after");
+      setState(() {
+        isLoading = false;
+      });
+    } else {
+      throw Exception('Failed to load comments');
+    }
+  }
+
+  fetchUsers() async {
+    setState(() {
+      isLoading = true;
+    });
+    final response = await http.get("${CallApi().url}/users");
+    if (response.statusCode == 200) {
+      users = json.decode(response.body) as List;
+      print("$users meaaawww");
+      setState(() {
+        isLoading = false;
+      });
+    } else {
+      throw Exception('Failed to load comments');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print("${widget.car}");
+//    print("${widget.car}");
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -85,7 +182,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
         centerTitle: true,
         backgroundColor: Colors.white,
         title: Text(
-          "${widget.car["car_name"]}",
+          StringUtils.capitalize(widget.car["car_name"]),
           style: TextStyle(color: Colors.black),
           textAlign: TextAlign.center,
         ),
@@ -101,6 +198,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
       body: Stack(
         children: <Widget>[
           ListView(
+
             padding: EdgeInsets.symmetric(horizontal: 20),
             children: <Widget>[
               SizedBox(height: 10),
@@ -124,7 +222,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                           );
                         },
                         child: Image.network(
-                          "http://192.168.64.2/signaling/images/${widget.car['car_img_path']}",
+                          "${CallApi().url}/img/${widget.car['car_img_path']}",
                           height: 240,
                           width: MediaQuery.of(context).size.width,
                           fit: BoxFit.contain,
@@ -136,8 +234,8 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                       bottom: 3.0,
                       child: RawMaterialButton(
                         onPressed: () {
-                          print("favs ${widget.car['uid']}");
-                          _saveFavList(widget.car['uid']);
+                          print("favs ${widget.car['id']}");
+                          _saveFavList(widget.car['id']);
                         },
                         fillColor: Colors.white,
                         shape: CircleBorder(),
@@ -153,29 +251,86 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                 ),
               ),
               SizedBox(height: 20),
-              Text(
-                "${widget.car['car_name']}",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
+              Center(
+                child: Text(
+                  StringUtils.capitalize(widget.car['car_name']),
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: Text(
+                  "$distance from your location\nEstimated trip time $time",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Center(
+                child: Text(
+                  "Rating",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Center(
+                child: SmoothStarRating(
+                    allowHalfRating: true,
+
+                    starCount: 5,
+                    rating: defaultRating,
+                    size: 40.0,
+                    color: Colors.blueAccent,
+                    borderColor: Colors.amber,
+                    spacing:0.0
                 ),
               ),
               SizedBox(height: 10),
               Text(
-                "$distance from your location\nEstimated trip time $time",
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                "\$550.00",
+                "Price",
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 30),
+              Text(
+                "${widget.car["car_price"]}",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                "Car Color",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "${widget.car["car_color"]}",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
               Text(
                 "Description",
                 style: TextStyle(
@@ -183,6 +338,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               SizedBox(height: 10),
               Text(
                 widget.car['car_description'],
@@ -278,8 +434,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                   itemCount: widget.cars.length,
                   itemBuilder: (BuildContext context, int index) {
                     Map car = widget.cars.toList()[index];
-                    //print("aaaaaaxxxxa ${car}");
-                    if (widget.car['uid'] != car['uid']) {
+                    if (widget.car['id'] != car['id']) {
                       return Padding(
                         padding: EdgeInsets.only(right: 20),
                         child: GestureDetector(
@@ -290,7 +445,6 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                                   return CarsDetailPage(
                                     car: widget.cars[index],
                                     cars: widget.cars,
-
                                   );
                                 },
                               ),
@@ -302,7 +456,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Image.network(
-                                "http://192.168.64.2/signaling/images/${car["car_img_path"]}",
+                                "${CallApi().url}/img/${car["car_img_path"]}",
                                 height: 100,
                                 width: 100,
                                 fit: BoxFit.contain,
@@ -319,17 +473,141 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
               ),
 
               SizedBox(height: 10),
+              Text(
+                "Comments and Ratings ${defaultRating}",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                height:
+                    comments.length > 0 ? comments.length > 2 ? 300 : 200 : 0,
+                child: isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : ListView.builder(
+                        itemCount: comments.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          for (int i = 0; i < users.length; i++) {
+                            if (users[i]['id'] == comments[index]['user_id']) {
+                              return Card(
+                                elevation: 8,
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.all(10.0),
+                                  title: Text(
+                                      "${users[i]['name']} : ${comments[index]['comment']}"),
+                                  leading: Image.network(
+                                      "https://api.adorable.io/avatars/70/${users[i]['name']}.png"),
+                                ),
+                              );
+                            }
+                          }
+                          return Container();
+                        },
+                      ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      Card(
+                        elevation: 6.0,
+                        child: TextFormField(
+                          validator: (e) {
+                            if (e.isEmpty) {
+                              return "Please Insert Your Comment";
+                            }
+                          },
+                          onSaved: (e) => comment = e,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                          ),
+                          decoration: InputDecoration(
+                              prefixIcon: Padding(
+                                padding: EdgeInsets.only(left: 20, right: 15),
+                                child: Icon(Icons.comment, color: Colors.black),
+                              ),
+                              contentPadding: EdgeInsets.all(18),
+                              labelText: "Comment"),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      RatingBar(
+                        initialRating: 5,
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          switch (index) {
+                            case 0:
+                              return Icon(
+                                Icons.sentiment_very_dissatisfied,
+                                color: Colors.red,
+                              );
+                            case 1:
+                              return Icon(
+                                Icons.sentiment_dissatisfied,
+                                color: Colors.pink,
+                              );
+                            case 2:
+                              return Icon(
+                                Icons.sentiment_neutral,
+                                color: Colors.amber,
+                              );
+                            case 3:
+                              return Icon(
+                                Icons.sentiment_satisfied,
+                                color: Colors.lightGreen,
+                              );
+                            case 4:
+                              return Icon(
+                                Icons.sentiment_very_satisfied,
+                                color: Colors.green,
+                              );
+                          }
+                        },
+                        onRatingUpdate: (rating) {
+//                          print(rating);
+                          this.rating = rating.toInt();
+                          print(this.rating);
+                        },
+                      ),
+                      new Button(
+                        text: "Post",
+                        color: Colors.lightBlueAccent,
+                        fn: () {
+                          setState(() {
+                            _showSpinner = true;
+                          });
+                          check();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.topRight,
             child: Padding(
-              padding: EdgeInsets.only(right: 20),
+              padding: EdgeInsets.only(right: 20, bottom: 20, top: 30),
               child: Container(
                 height: 60,
                 width: 60,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
                   color: Theme.of(context).accentColor,
                   boxShadow: [
                     BoxShadow(
@@ -346,9 +624,14 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                       color: Colors.white,
                       size: 25,
                     ),
-                    onPressed: (){
-                      MapsActivity(
-                          latLng: LatLng(double.parse(widget.car['car_lat']), double.parse(widget.car['car_long']))
+                    onPressed: () {
+                      print("asd !");
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (BuildContext context) {
+                            return CarDetailMapActivity(car: widget.car);
+                          },
+                        ),
                       );
                     },
                   ),
@@ -361,6 +644,31 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
     );
   }
 
-
+  Future postComment() async {
+    var data = {
+      'car_id': widget.car['id'],
+      'user_id': userData['id'],
+      'comment': comment,
+      'rating': rating,
+    };
+    var res = await CallApi().postData(data, 'comment');
+    var body = json.decode(res.body);
+    setState(() {
+      _showSpinner = false;
+    });
+    print("$body xddd i hate my life");
+    if (body['success']) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.setString('token', body['token']);
+      localStorage.setString('user', json.encode(body['user']));
+      setState(() {
+        fetchComments();
+      });
+      setState(() {
+        defaultRating = (defaultRating*comments.length + rating)/comments.length;
+      });
+    } else {
+      print("fail");
+    }
+  }
 }
-

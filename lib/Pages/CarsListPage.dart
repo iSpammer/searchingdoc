@@ -4,8 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gocars/Pages/CarsSortedList.dart';
 import 'package:gocars/Utils/car_list.dart';
-import 'package:gocars/util/car.dart';
-import 'package:http/http.dart' as http;
+import 'package:gocars/api/api.dart';
 
 class CarsListPage extends StatefulWidget {
   final double lat;
@@ -21,7 +20,7 @@ class _CarsListPageState extends State<CarsListPage> {
   static Future<List> _getCarsData() async {
     Dio http = new Dio();
     final response =
-        await http.get("http://192.168.64.2/signaling/cars_list.php");
+        await http.get("${CallApi().url}/cars");
     //print("alby $response");
     return json.decode(response.data.toString());
   }
@@ -138,7 +137,9 @@ class _CarsListPageState extends State<CarsListPage> {
                         color: Colors.grey,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      print("meaw");
+                    },
                   ),
                 ],
               ),

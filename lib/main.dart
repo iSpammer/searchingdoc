@@ -18,7 +18,8 @@ void initState() {
 //  ));
 }
 
-Future<void> main() async {
+ main()  {
+  WidgetsFlutterBinding.ensureInitialized();
   // This app is designed only to work vertically, so we limit
   // orientations to portrait up and down.
 //  SystemChrome.setPreferredOrientations(
@@ -27,16 +28,68 @@ Future<void> main() async {
 //      statusBarIconBrightness: Brightness.dark,
 //      statusBarColor: Colors.transparent));
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var userId = prefs.getString('id');
-//  var name = prefs.getString('username');
+//
+//    bool _isLoggedIn = false;
+//
+////  var name = prefs.getString('username');
+//    // check if token is there
+//    SharedPreferences localStorage = await SharedPreferences.getInstance();
+//    var token = localStorage.getString('token');
+//    print("$token asddddd");
+//    if(token!= null) {
+//      _isLoggedIn = true;
+//      print("meaaaaaaw");
+//    }
+//    else{
+//      print("fml");
+//      _isLoggedIn = false;
+//    }
 
   return runApp(
-    MaterialApp(
+   Runner(),
+  );
+}
+
+class Runner extends StatefulWidget {
+
+  @override
+  _RunnerState createState() => _RunnerState();
+}
+
+class _RunnerState extends State<Runner> {
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _checkLogin();
+  }
+  _checkLogin() async {
+
+    bool _isLoggedIn = false;
+
+//  var name = prefs.getString('username');
+    // check if token is there
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var token = localStorage.getString('token');
+    print("$token asddddd");
+    if(token!= null) {
+      _isLoggedIn = true;
+      print("meaaaaaaw");
+    }
+    else{
+      print("fml");
+      _isLoggedIn = false;
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return  MaterialApp(
       title: "Go Cars!",
       home: new SplashScreen(
           seconds: 2,
-          navigateAfterSeconds: userId == null ? IntroScreen() : HomePage(),
+          navigateAfterSeconds: _isLoggedIn == false ? IntroScreen() : HomePage(),
           title: Text('Go Cars!'),
           loadingText: Text("Drive And Chill!"),
           image: new Image.asset('images/search.png'),
@@ -45,21 +98,6 @@ Future<void> main() async {
           photoSize: 100.0,
           loaderColor: Colors.red),
 //    home: ,
-      navigatorObservers: [routeObserver],
-    ),
-  );
-}
-
-class App extends StatelessWidget {
-  final Function home;
-
-  App(this.home);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "GoCars",
-      home: home(),
       navigatorObservers: [routeObserver],
     );
   }

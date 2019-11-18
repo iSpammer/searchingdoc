@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
@@ -10,6 +11,8 @@ import 'package:gocars/Pages/IntroScreen.dart';
 import 'package:gocars/Pages/MapsPage.dart';
 import 'package:gocars/Pages/ProfileSettings.dart';
 import 'package:gocars/Pages/CarDetailsPage.dart';
+import 'package:gocars/Pages/WelcomeScreen.dart';
+import 'package:gocars/api/api.dart';
 import 'package:gocars/main.dart';
 import 'package:gocars/util/data.dart';
 import 'package:location/location.dart';
@@ -30,6 +33,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with RouteAware {
   GlobalKey _fabKey = GlobalKey();
   bool _fabVisible = true;
+  var userData;
 
   //initial page is 0
   int currentIndex;
@@ -50,9 +54,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
       email = preferences.getString("email");
       name = preferences.getString("name");
     });
-    print("id" + id);
-    print("user" + email);
-    print("name" + name);
   }
 
   void changePage(int index) {
@@ -90,6 +91,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
     // refreshList();
     //initial Buttom bar page indicator
     currentIndex = 1;
+    _getUserInfo();
     getPref();
     _getList();
     _getDeviceLocation();
@@ -97,6 +99,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
   double latitudeCurrent = 30.0271556;
   double longitudeCurrent = 31.0133856;
+
   void _getDeviceLocation() async {
     var location = new Location();
     location.changeSettings(
@@ -104,19 +107,20 @@ class _HomePageState extends State<HomePage> with RouteAware {
       distanceFilter: 0,
       interval: 100,
     );
-    location.onLocationChanged().listen((LocationData currentLocation) {
-      setState(() {
-        latitudeCurrent = currentLocation.latitude;
-        longitudeCurrent = currentLocation.longitude;
-      });
-      print(longitudeCurrent);
-      print(latitudeCurrent);
-    },);
+    location.onLocationChanged().listen(
+      (LocationData currentLocation) {
+        setState(() {
+          latitudeCurrent = currentLocation.latitude;
+          longitudeCurrent = currentLocation.longitude;
+        });
+        print(longitudeCurrent);
+        print(latitudeCurrent);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: () => Future.value(false),
       child: Scaffold(
@@ -132,7 +136,43 @@ class _HomePageState extends State<HomePage> with RouteAware {
               color: Colors.black,
             ),
             onPressed: () async {
-              signOut();
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => Dialog(
+                  child: Container(
+                    height: 200.0,
+                    width: 260.0,
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(15.0),
+                          child: Text(
+                            'Are you sure u wanna quit',
+                            style:
+                                TextStyle(color: Colors.black, fontSize: 22.0),
+                          ),
+                        ),
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: <Widget>[
+                          FlatButton(
+                            child: Text("Yes"),
+                            onPressed: (){
+                              signOut();
+                            },
+                          ),
+                          FlatButton(
+                            child: Text("No"),
+                            onPressed: (){
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],),
+                      ],
+                    ),
+                  ),
+                ),
+              );
             },
           ),
           elevation: 0.1,
@@ -238,7 +278,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
   Widget getChildren(int i) {
     List<Widget> _children = [
       MapsActivity(),
-      CarsListPage(lat: latitudeCurrent, long: longitudeCurrent,),
+      CarsListPage(
+        lat: latitudeCurrent,
+        long: longitudeCurrent,
+      ),
       History(),
       ProfileSettings(
         signout: signOut,
@@ -333,20 +376,27 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
-  signOut() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    setState(
-      () {
-        preferences.setInt("value", null);
-        preferences.setString("name", null);
-        preferences.setString("email", null);
-        preferences.setString("id", null);
+  void _getUserInfo() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var userJson = localStorage.getString('user');
+    var user = json.decode(userJson);
+    setState(() {
+      userData = user;
+    });
+  }
 
-        preferences.commit();
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (BuildContext ctx) => IntroScreen()));
-//      _loginStatus = LoginStatus.notSignIn;
-      },
-    );
+  signOut() async {
+    var res = await CallApi().getData('logout');
+    var body = json.decode(res.body);
+    if (body['success']) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.remove('user');
+      localStorage.remove('token');
+      Navigator.pushReplacement(
+          context,
+          new MaterialPageRoute(
+              builder: (BuildContext context) => new WelcomeScreen()));
+
+    }
   }
 }

@@ -2,32 +2,28 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:gocars/api/api.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:morpheus/morpheus.dart';
 
 import 'CarDetailsPage.dart';
 
-class MapsActivity extends StatefulWidget {
-  final LatLng latLng;
+class CarDetailMapActivity extends StatefulWidget {
+  final dynamic car;
 
-  MapsActivity({this.latLng});
+  CarDetailMapActivity({this.car});
 
   @override
-  State<MapsActivity> createState() => _MapsActivityState();
+  State<CarDetailMapActivity> createState() => _CarDetailMapActivityState();
 }
 
-class _MapsActivityState extends State<MapsActivity> {
+class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
   double latitudeCurrent = 30.0271556;
   double longitudeCurrent = 31.0133856;
   Set<Marker> markers = Set();
 
-  double _originLatitude = 6.5212402, _originLongitude = 3.3679965;
-  double _destLatitude = 30.0271556, _destLongitude = 31.0133856;
   //Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
@@ -61,7 +57,7 @@ class _MapsActivityState extends State<MapsActivity> {
   @override
   initState() {
     super.initState();
-
+    _getDeviceLocation();
     //By5aly sort el pin el a7mar tb2a sort el 3rbya el safra zy uber kda
     BitmapDescriptor.fromAssetImage(
         ImageConfiguration(size: Size(48, 48)), 'images/car_icon.png')
@@ -70,65 +66,34 @@ class _MapsActivityState extends State<MapsActivity> {
         carIcon = onValue;
       },
     );
-
-//    Marker _marker = new Marker(
-//      icon: BitmapDescriptor.defaultMarker,
-//      markerId: MarkerId("12"),
-//      position: LatLng(30.0271556,31.0133856),
-//      infoWindow: InfoWindow(title: "userMarker", snippet: '*'),
-//    );
-//    markers.add(_marker);
     setState(
           () {
             //by fetch el 3rbyat mn database
-        _getCarsData();
+        _getCarData();
       },
     );
-    if(widget.latLng != null){
-
-    }
   }
 
-  _getCarsData() async {
-    Dio http = new Dio();
-    final response =
-    await http.get("${CallApi().url}/cars");
+  _getCarData() async {
     //print("reemo $response");
-
-    var cars = json.decode(response.data.toString());
-    for (var car in cars) {
-      setState(() {
-        markers.add(
+     setState(() {
+       _getPolyline(double.parse(widget.car['car_lat']), double.parse(widget.car['car_long']));
+       markers.add(
           Marker(
             icon: carIcon,
-            markerId: MarkerId(car['id'].toString()),
+            markerId: MarkerId(widget.car['id'].toString()),
             infoWindow: InfoWindow(
-                title: "${car['car_name']} of id ${car['id']}",
-                snippet: "${car['car_description']}"),
+                title: "${widget.car['car_name']} of id ${widget.car['id']}",
+                snippet: "${widget.car['car_description']}"),
             position: LatLng(
-                double.parse(car['car_lat']), double.parse(car['car_long'])),
-            onTap: () {
-              polylineCoordinates.clear();
-              polylines.clear();
-              _getPolyline(double.parse(car['car_lat']), double.parse(car['car_long']));
-              print("meaw");
-              Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (BuildContext context) {
-                    return CarsDetailPage(
-                      car: car,
-                      cars: cars,
-                    );
-                  },
-                ),
-              );
-            },
+                double.parse(widget.car['car_lat']), double.parse(widget.car['car_long'])),
+
           ),
         );
       });
       print("KILL ME");
 
-    }
+
     print("meaw");
 //    markers.addAll([
 //      Marker(
@@ -214,7 +179,7 @@ class _MapsActivityState extends State<MapsActivity> {
           _setStyle(controller);
           markers = Set();
           setState(() {
-            _getCarsData();
+            _getCarData();
           });
         },
         polylines: Set<Polyline>.of(polylines.values),
@@ -226,8 +191,6 @@ class _MapsActivityState extends State<MapsActivity> {
 
   _addPolyLine()
   {
-
-
     setState(() {
       PolylineId id = PolylineId("poly");
       Polyline polyline = Polyline(
@@ -240,6 +203,8 @@ class _MapsActivityState extends State<MapsActivity> {
 
   _getPolyline(double destLat, double destLong)async
   {
+    _getDeviceLocation();
+    polylines.clear();
     List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(googleAPiKey,
         latitudeCurrent, longitudeCurrent, destLat, destLong);
     if(result.isNotEmpty){

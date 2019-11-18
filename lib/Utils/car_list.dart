@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:gocars/Pages/CarDetailsPage.dart';
+import 'package:gocars/api/api.dart';
 
 class CarListView extends StatefulWidget {
   final List cars;
@@ -14,7 +16,7 @@ class CarListView extends StatefulWidget {
 
 class _CarListViewState extends State<CarListView> {
   Widget build(context) {
-    print("aaa ${widget.cars[0]['car_name']}");
+//    print("aaa ${widget.cars[0]['car_name']}");
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: widget.cars == null ? 0 : widget.cars.length,
@@ -42,7 +44,7 @@ class _CarListViewState extends State<CarListView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    widget.cars[i]['car_name'],
+              StringUtils.capitalize(widget.cars[i]['car_name']),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -54,7 +56,7 @@ class _CarListViewState extends State<CarListView> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(15),
                         child: Image.network(
-                          "http://192.168.64.2/signaling/images/${widget.cars[i]['car_img_path']}",
+                          "${CallApi().url}/img/${widget.cars[i]['car_img_path']}",
                           height: 240,
                           width: 340,
                           fit: BoxFit.contain,

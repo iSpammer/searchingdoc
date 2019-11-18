@@ -8,6 +8,7 @@ import 'package:gocars/Main/HomePage.dart';
 import 'package:gocars/Main/States.dart';
 import 'package:gocars/Utils/button.dart';
 import 'package:gocars/Utils/modal_progress_hud.dart';
+import 'package:gocars/api/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -173,7 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
         break;
-
       case LoginStatus.signIn:
         return HomePage();
 //        return ProfilePage(signOut);
@@ -200,34 +200,29 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   login() async {
-    Dio dio = new Dio();
-    FormData formData = FormData.from(
-        {"email": email, "password": password, "fcm_token": "test_fcm_token"});
-    final response =
-        await dio.post("http://192.168.64.2/signaling/login.php", data: formData);
-    print(response.data);
-    final data = jsonDecode(response.data);
-    int value = data['value'];
-    String message = data['message'];
-    String emailAPI = data['email'];
-    String nameAPI = data['name'];
-    String id = data['id'];
-
+    var data = {
+      'email' : email,
+      'password' : password
+    };
+    var res = await CallApi().postData(data, 'login');
+    var body = json.decode(res.body);
     setState(() {
       _showSpinner = false;
     });
-    if (value == 1) {
+    print(body);
+
+    if(body['success']){
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.setString('token', body['token']);
+      localStorage.setString('user', json.encode(body['user']));
       setState(() {
         _loginStatus = LoginStatus.signIn;
-        savePref(value, emailAPI, nameAPI, id);
       });
-      print(message);
-      loginToast(message);
-    } else {
+    }else{
       print("fail");
-      print(message);
-      loginToast(message);
+      loginToast("Login failed");
     }
+
   }
 
   loginToast(String toast) {
