@@ -134,17 +134,20 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
           i++;
         }
       }
-
+      int sum = 0;
 //      print(defaultRating);
       comments.forEach((comment) {
 //        print("${comment['rating']} meaw");
-        defaultRating+= comment['rating'];
+        sum += comment['rating'];
       });
 //      print(defaultRating);
 
       setState(() {
-        defaultRating = defaultRating / comments.length;
+        defaultRating = sum / comments.length;
       });
+      print("$defaultRating xdd");
+      if(defaultRating == 0 || defaultRating.isNaN || defaultRating.isInfinite)
+        defaultRating = 0;
 
 //      print("$comments after");
       setState(() {
@@ -285,16 +288,21 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                 ),
               ),
               Center(
-                child: SmoothStarRating(
-                    allowHalfRating: true,
-
-                    starCount: 5,
-                    rating: defaultRating,
-                    size: 40.0,
-                    color: Colors.blueAccent,
-                    borderColor: Colors.amber,
-                    spacing:0.0
-                ),
+                child: RatingBar(
+                  ignoreGestures: true,
+                  initialRating: defaultRating,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                  },
+                )
               ),
               SizedBox(height: 10),
               Text(
@@ -474,7 +482,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
 
               SizedBox(height: 10),
               Text(
-                "Comments and Ratings ${defaultRating}",
+                "Comments and Ratings",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -485,7 +493,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
               ),
               SizedBox(
                 height:
-                    comments.length > 0 ? comments.length > 2 ? 300 : 200 : 0,
+                    comments.length > 0 ? comments.length > 1 ? 300 : 100 : 0,
                 child: isLoading
                     ? Center(
                         child: CircularProgressIndicator(),
@@ -664,8 +672,9 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
       setState(() {
         fetchComments();
       });
+      print("$defaultRating xdd");
       setState(() {
-        defaultRating = (defaultRating*comments.length + rating)/comments.length;
+        comment = "";
       });
     } else {
       print("fail");

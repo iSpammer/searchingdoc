@@ -388,6 +388,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   signOut() async {
     var res = await CallApi().getData('logout');
     var body = json.decode(res.body);
+    print(body.toString());
     if (body['success']) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.remove('user');
@@ -398,5 +399,13 @@ class _HomePageState extends State<HomePage> with RouteAware {
               builder: (BuildContext context) => new WelcomeScreen()));
 
     }
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    localStorage.remove('user');
+    localStorage.remove('token');
+    Navigator.pushReplacement(
+        context,
+        new MaterialPageRoute(
+            builder: (BuildContext context) => new WelcomeScreen()));
+
   }
 }
