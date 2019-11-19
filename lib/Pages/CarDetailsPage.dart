@@ -637,7 +637,7 @@ class _CarsDetailPageState extends State<CarsDetailPage> {
                       Navigator.of(context).push(
                         CupertinoPageRoute(
                           builder: (BuildContext context) {
-                            return CarDetailMapActivity(car: widget.car);
+                            return CarDetailMapActivity(currlong: longitudeCurrent, currlat: latitudeCurrent,car: widget.car);
                           },
                         ),
                       );

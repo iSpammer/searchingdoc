@@ -152,7 +152,7 @@ class _MapsActivityState extends State<MapsActivity> {
           title: Column(
             children: <Widget>[
               Card(
-                elevation: 6.0,
+                elevation: 5.0,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -199,11 +199,13 @@ class _MapsActivityState extends State<MapsActivity> {
         ),
         bottom: PreferredSize(
           preferredSize: Size.square(16.0),
-          child: Container(),
+          child: SizedBox(),
         ),
       ),
+
       body: GoogleMap(
         mapType: MapType.normal,
+
         initialCameraPosition: CameraPosition(
           target: LatLng(latitudeCurrent, longitudeCurrent),
           zoom: 5,

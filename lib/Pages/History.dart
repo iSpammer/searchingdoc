@@ -6,7 +6,7 @@ class History extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ListView.builder(
-        physics: ScrollPhysics(), // this is what you are looking for
+        physics: ScrollPhysics(),
         primary: false,
         shrinkWrap: true,
         itemCount: history.length,
@@ -19,23 +19,28 @@ class History extends StatelessWidget {
                 Radius.circular(10),
               ),
             ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: AssetImage(
-                  transaction['dp'],
+            child: InkWell(
+              onTap: (){
+                print("kill me");
+              },
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage(
+                    transaction['dp'],
+                  ),
+                  radius: 25,
                 ),
-                radius: 25,
-              ),
-              title: Text(transaction['name']),
-              subtitle: Text(transaction['date']),
-              trailing: Text(
-                transaction['type'] == "sent"
-                    ? "-${transaction['amount']}"
-                    : "+${transaction['amount']}",
-                style: TextStyle(
-                  color:
-                      transaction['type'] == "sent" ? Colors.red : Colors.green,
-                  fontWeight: FontWeight.bold,
+                title: Text(transaction['name']),
+                subtitle: Text(transaction['date']),
+                trailing: Text(
+                  transaction['type'] == "sent"
+                      ? "-${transaction['amount']}"
+                      : "+${transaction['amount']}",
+                  style: TextStyle(
+                    color:
+                        transaction['type'] == "sent" ? Colors.red : Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

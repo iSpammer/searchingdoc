@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:basic_utils/basic_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:gocars/api/api.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:morpheus/morpheus.dart';
@@ -12,8 +14,10 @@ import 'CarDetailsPage.dart';
 
 class CarDetailMapActivity extends StatefulWidget {
   final dynamic car;
+  final double currlong;
+  final double currlat;
 
-  CarDetailMapActivity({this.car});
+  CarDetailMapActivity({this.car, this.currlong, this.currlat});
 
   @override
   State<CarDetailMapActivity> createState() => _CarDetailMapActivityState();
@@ -57,45 +61,45 @@ class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
   @override
   initState() {
     super.initState();
+    latitudeCurrent = widget.currlat;
+    longitudeCurrent = widget.currlong;
     polylines.clear();
     polylineCoordinates.clear();
     polylineCoordinates.clear();
     _getDeviceLocation();
     //By5aly sort el pin el a7mar tb2a sort el 3rbya el safra zy uber kda
     BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(48, 48)), 'images/car_icon.png')
+            ImageConfiguration(size: Size(48, 48)), 'images/car_icon.png')
         .then(
-          (onValue) {
+      (onValue) {
         carIcon = onValue;
       },
     );
     setState(
-          () {
-
-            //by fetch el 3rbyat mn database
+      () {
+        //by fetch el 3rbyat mn database
         _getCarData();
       },
     );
   }
 
   _getCarData() async {
-     setState(() {
-       _getPolyline(double.parse(widget.car['car_lat']), double.parse(widget.car['car_long']));
-       markers.add(
-          Marker(
-            icon: carIcon,
-            markerId: MarkerId(widget.car['id'].toString()),
-            infoWindow: InfoWindow(
-                title: "${widget.car['car_name']} of id ${widget.car['id']}",
-                snippet: "${widget.car['car_description']}"),
-            position: LatLng(
-                double.parse(widget.car['car_lat']), double.parse(widget.car['car_long'])),
-
-          ),
-        );
-      });
-      print("KILL ME");
-
+    setState(() {
+      _getPolyline(double.parse(widget.car['car_lat']),
+          double.parse(widget.car['car_long']));
+      markers.add(
+        Marker(
+          icon: carIcon,
+          markerId: MarkerId(widget.car['id'].toString()),
+          infoWindow: InfoWindow(
+              title: "${widget.car['car_name']} of id ${widget.car['id']}",
+              snippet: "${widget.car['car_description']}"),
+          position: LatLng(double.parse(widget.car['car_lat']),
+              double.parse(widget.car['car_long'])),
+        ),
+      );
+    });
+    print("KILL ME");
 
     print("meaw");
 //    markers.addAll([
@@ -111,110 +115,105 @@ class _CarDetailMapActivityState extends State<CarDetailMapActivity> {
 
   @override
   Widget build(BuildContext context) {
+
+    void _currentLocation() async {
+      final GoogleMapController controller = await _controller.future;
+      LocationData currentLocation;
+      var location = new Location();
+      try {
+        currentLocation = await location.getLocation();
+      } on Exception {
+        currentLocation = null;
+      }
+
+      controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          bearing: 0,
+          target: LatLng(currentLocation.latitude, currentLocation.longitude),
+          zoom: 17.0,
+        ),
+      ));
+    }
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        flexibleSpace: FlexibleSpaceBar(
-          centerTitle: true,
-          title: Column(
-            children: <Widget>[
-              Card(
-                elevation: 6.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0),
-                    ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90),
+//        child: FloatingActionButton.extended(
+//          onPressed: _currentLocation,
+//          label: Text('My Location'),
+//          icon: Icon(Icons.location_on),
+//        ),
+      ),
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: CameraPosition(
+              target: LatLng(latitudeCurrent, longitudeCurrent),
+              zoom: 15,
+            ),
+            onMapCreated: (GoogleMapController controller) async {
+              _getDeviceLocation();
+              _controller.complete(controller);
+              _setStyle(controller);
+              markers = Set();
+              setState(() {
+                _getCarData();
+              });
+            },
+            polylines: Set<Polyline>.of(polylines.values),
+            markers: markers,
+            myLocationEnabled: true,
+
+          ),
+
+          Padding(
+            padding: EdgeInsets.only(top: 50),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Card(
+                child: ListTile(
+                  leading: Icon(Icons.arrow_back),
+                  title: Text(
+                    StringUtils.capitalize(widget.car['car_name']),
                   ),
-                  child: TextField(
-                    style: TextStyle(
-                      fontSize: 15.0,
-                      color: Colors.black,
-                    ),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.white,
-                        ),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      hintText: "Search",
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Colors.black,
-                      ),
-                      hintStyle: TextStyle(
-                        fontSize: 15.0,
-                        color: Colors.black,
-                      ),
-                    ),
-                    maxLines: 1,
-                    controller: _searchControl,
-                  ),
+                  subtitle: Text("Click to see the car details"),
+                  onTap: () {
+                    polylines.clear();
+                    polylineCoordinates.clear();
+                    Navigator.of(context).pop();
+                  },
+                    trailing: Image.network(CallApi().url+"/img/"+widget.car['car_img_path'])
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.square(16.0),
-          child: Container(),
-        ),
-      ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: CameraPosition(
-          target: LatLng(latitudeCurrent, longitudeCurrent),
-          zoom: 5,
-        ),
-        onMapCreated: (GoogleMapController controller) async {
-          _getDeviceLocation();
-          _controller.complete(controller);
-          _setStyle(controller);
-          markers = Set();
-          setState(() {
-            _getCarData();
-          });
-        },
-        polylines: Set<Polyline>.of(polylines.values),
-        markers: markers,
-        myLocationEnabled: true,
+
+        ],
       ),
     );
   }
 
-  _addPolyLine()
-  {
+  _addPolyLine() {
     setState(() {
       PolylineId id = PolylineId("poly");
       Polyline polyline = Polyline(
-          polylineId: id,
-          color: Colors.blue, points: polylineCoordinates
-      );
+          polylineId: id, color: Colors.blue, points: polylineCoordinates);
       polylines[id] = polyline;
     });
   }
 
-  _getPolyline(double destLat, double destLong)async
-  {
+  _getPolyline(double destLat, double destLong) async {
     _getDeviceLocation();
-    List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(googleAPiKey,
-        latitudeCurrent, longitudeCurrent, destLat, destLong);
-    if(result.isNotEmpty){
-      result.forEach((PointLatLng point){
+    polylineCoordinates.clear();
+    polylines.clear();
+
+    List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
+        googleAPiKey, latitudeCurrent, longitudeCurrent, destLat, destLong);
+    if (result.isNotEmpty) {
+      result.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       });
     }
     _addPolyLine();
   }
 }
-

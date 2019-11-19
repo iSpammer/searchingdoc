@@ -64,7 +64,7 @@ class _EditState extends State<Edit> {
                                   Icons.account_circle,
                                   color: Colors.grey,
                                 ),
-                                hintText: "Firstname",
+                                hintText: "Name",
                                 hintStyle: TextStyle(
                                     color: Color(0xFF9b9b9b),
                                     fontSize: 15,
@@ -78,10 +78,10 @@ class _EditState extends State<Edit> {
                               keyboardType: TextInputType.text,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
-                                  Icons.account_circle,
+                                  Icons.sort,
                                   color: Colors.grey,
                                 ),
-                                hintText: "Lastname",
+                                hintText: "Age",
                                 hintStyle: TextStyle(
                                     color: Color(0xFF9b9b9b),
                                     fontSize: 15,
@@ -147,6 +147,25 @@ class _EditState extends State<Edit> {
                                     fontWeight: FontWeight.normal),
                               ),
                             ),
+                            TextField(
+                              style: TextStyle(color: Color(0xFF000000)),
+                              cursorColor: Color(0xFF9b9b9b),
+                              controller: phoneController,
+                              keyboardType: TextInputType.text,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.accessibility_new,
+                                  color: Colors.grey,
+                                ),
+                                hintText: "Nation",
+                                hintStyle: TextStyle(
+                                    color: Color(0xFF9b9b9b),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal),
+                              ),
+                            ),
+
                             /////////////// SignUp Button ////////////
 
                             Padding(
