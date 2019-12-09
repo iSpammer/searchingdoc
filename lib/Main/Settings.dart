@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gocars/Pages/CarDetailsPage.dart';
-import 'package:gocars/util/data.dart';
+import 'package:pharmacy/Pages/MedicineDetailPage.dart';
+import 'package:pharmacy/util/data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings extends StatefulWidget {
@@ -127,62 +127,7 @@ class _SettingsState extends State<Settings> {
               padding: const EdgeInsets.all(12.0),
               child: Container(
                 height: 275,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemCount: favs.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    for (int i = 0; i < cars.length; i++) {
-                      Map car = cars[i];
-                      //print("meaw $car");
-                      if (car["id"].toString() == favs[index]) {
-                        return Padding(
-                          padding: EdgeInsets.only(right: 20),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      CarsDetailPage(
-                                    car: car['id'].toString(),
-                                        cars: cars,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              height: 275,
-                              width: 280,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    car['name'],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: Image.asset(
-                                      "${car["img"]}",
-                                      height: 240,
-                                      width: 280,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                    return Container();
-                  },
-                ),
+
               ),
             ),
           ],

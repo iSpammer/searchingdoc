@@ -26,6 +26,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   void _getUserInfo() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var userJson = localStorage.getString('user');
+    print(userJson);
     var user = json.decode(userJson);
     setState(() {
       userData = user;
@@ -100,7 +101,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           padding: const EdgeInsets.only(left: 35),
                           child: Text(
                             userData != null
-                                ? '${userData['name']} #${userData['id']}'
+                                ? '${userData['name']}'
                                 : '',
                             textAlign: TextAlign.left,
                             style: TextStyle(
@@ -115,13 +116,11 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                     ),
                   ),
                 ),
-
-                ////////////// last name //////////////
                 Card(
                   elevation: 4.0,
                   color: Colors.white,
                   margin:
-                      EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
+                  EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   child: Container(
@@ -135,12 +134,12 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                             Padding(
                               padding: const EdgeInsets.only(right: 10),
                               child: Icon(
-                                Icons.account_circle,
+                                Icons.supervisor_account,
                                 color: Color(0xFFFF835F),
                               ),
                             ),
                             Text(
-                              'Nation',
+                              'User id',
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 color: Color(0xFF9b9b9b),
@@ -154,7 +153,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         Padding(
                           padding: const EdgeInsets.only(left: 35),
                           child: Text(
-                            userData != null ? '${userData['nation']}' : '',
+                            userData != null ? '${userData['userId']}' : '',
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               color: Color(0xFF9b9b9b),
@@ -168,6 +167,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                     ),
                   ),
                 ),
+
                 ////////////  Email/////////
                 Card(
                   elevation: 4.0,
@@ -221,109 +221,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                   ),
                 ),
                 ////////////////////// phone ///////////
-                Card(
-                  elevation: 4.0,
-                  color: Colors.white,
-                  margin:
-                      EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Container(
-                    padding: EdgeInsets.only(left: 15, top: 10, bottom: 10),
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Icon(
-                                Icons.phone,
-                                color: Color(0xFFFF835F),
-                              ),
-                            ),
-                            Text(
-                              'Phone',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Color(0xFF9b9b9b),
-                                fontSize: 17.0,
-                                decoration: TextDecoration.none,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 35),
-                          child: Text(
-                            userData != null ? '${userData['phone']}' : '',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Color(0xFF9b9b9b),
-                              fontSize: 15.0,
-                              decoration: TextDecoration.none,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                ////////////////////// Age ///////////
-                Card(
-                  elevation: 4.0,
-                  color: Colors.white,
-                  margin:
-                      EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Container(
-                    padding: EdgeInsets.only(left: 15, top: 10, bottom: 10),
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Icon(
-                                Icons.accessibility_new,
-                                color: Color(0xFFFF835F),
-                              ),
-                            ),
-                            Text(
-                              'Age',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Color(0xFF9b9b9b),
-                                fontSize: 17.0,
-                                decoration: TextDecoration.none,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 35),
-                          child: Text(
-                            userData != null ? '${userData['age']}' : '',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Color(0xFF9b9b9b),
-                              fontSize: 15.0,
-                              decoration: TextDecoration.none,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+
                 Center(
                   child: Text(
                     "_____________________\n",
@@ -431,12 +329,12 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                             Padding(
                               padding: const EdgeInsets.only(right: 10),
                               child: Icon(
-                                Icons.directions_car,
+                                Icons.dock,
                                 color: Color(0xFFFF835F),
                               ),
                             ),
                             Text(
-                              'Cars Settings',
+                              'Medicine Settings',
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 color: Color(0xFF9b9b9b),
@@ -450,7 +348,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                         Padding(
                           padding: const EdgeInsets.only(left: 35),
                           child: Text(
-                            'Manage Cars Sorting Settings',
+                            'Manage Medicine Sorting Settings',
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               color: Color(0xFF9b9b9b),
@@ -567,54 +465,57 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                     ),
                   ),
                 ),
-                Card(
-                  elevation: 4.0,
-                  color: Colors.white,
-                  margin: EdgeInsets.only(
-                      left: 10, right: 10, top: 10, bottom: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Container(
-                    padding: EdgeInsets.only(left: 15, top: 10, bottom: 10),
-                    width: MediaQuery.of(context).size.width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Icon(
-                                Icons.exit_to_app,
-                                color: Color(0xFFFF835F),
+                InkWell(
+                  onTap: (){print("asd");},
+                  child: Card(
+                    elevation: 4.0,
+                    color: Colors.white,
+                    margin: EdgeInsets.only(
+                        left: 10, right: 10, top: 10, bottom: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      padding: EdgeInsets.only(left: 15, top: 10, bottom: 10),
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: Icon(
+                                  Icons.exit_to_app,
+                                  color: Color(0xFFFF835F),
+                                ),
                               ),
-                            ),
-                            Text(
-                                'Sign out',
+                              Text(
+                                  'Sign out',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Color(0xFF9b9b9b),
+                                  fontSize: 17.0,
+                                  decoration: TextDecoration.none,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 35),
+                            child: Text(
+                              'Sign out of your account',
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 color: Color(0xFF9b9b9b),
-                                fontSize: 17.0,
+                                fontSize: 15.0,
                                 decoration: TextDecoration.none,
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 35),
-                          child: Text(
-                            'Sign out of your account',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Color(0xFF9b9b9b),
-                              fontSize: 15.0,
-                              decoration: TextDecoration.none,
-                              fontWeight: FontWeight.normal,
-                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -1,22 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gocars/Pages/CarsListPage.dart';
-import 'package:gocars/Pages/History.dart';
-import 'package:gocars/Pages/IntroScreen.dart';
-import 'package:gocars/Pages/MapsPage.dart';
-import 'package:gocars/Pages/ProfileSettings.dart';
-import 'package:gocars/Pages/CarDetailsPage.dart';
-import 'package:gocars/Pages/WelcomeScreen.dart';
-import 'package:gocars/api/api.dart';
-import 'package:gocars/main.dart';
-import 'package:gocars/util/data.dart';
-import 'package:location/location.dart';
-import 'package:morpheus/widgets/morpheus_tab_view.dart';
+import 'package:pharmacy/Pages/MedicinesListPage.dart';
+import 'package:pharmacy/Pages/History.dart';
+import 'package:pharmacy/Pages/ProfileSettings.dart';
+import 'package:pharmacy/Pages/WelcomeScreen.dart';
+import 'package:pharmacy/api/api.dart';
+import 'package:pharmacy/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Settings.dart';
@@ -93,31 +86,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
     currentIndex = 1;
     _getUserInfo();
     getPref();
-    _getList();
-    _getDeviceLocation();
   }
 
-  double latitudeCurrent = 30.0271556;
-  double longitudeCurrent = 31.0133856;
 
-  void _getDeviceLocation() async {
-    var location = new Location();
-    location.changeSettings(
-      accuracy: LocationAccuracy.HIGH,
-      distanceFilter: 0,
-      interval: 100,
-    );
-    location.onLocationChanged().listen(
-      (LocationData currentLocation) {
-        setState(() {
-          latitudeCurrent = currentLocation.latitude;
-          longitudeCurrent = currentLocation.longitude;
-        });
-        print(longitudeCurrent);
-        print(latitudeCurrent);
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +151,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
           backgroundColor: Colors.white,
           title: Center(
               child: Text(
-            "GoCar",
+            "Pharmacy Manager",
             style: TextStyle(color: Colors.black),
           )),
           actions: <Widget>[
@@ -208,36 +180,25 @@ class _HomePageState extends State<HomePage> with RouteAware {
             BubbleBottomBarItem(
                 backgroundColor: Colors.red,
                 icon: Icon(
-                  Icons.map,
+                  Icons.dashboard,
                   color: Colors.black,
                 ),
                 activeIcon: Icon(
-                  Icons.map,
+                  Icons.dashboard,
                   color: Colors.red,
                 ),
-                title: Text("Map")),
+                title: Text("Medicine List")),
             BubbleBottomBarItem(
                 backgroundColor: Colors.deepPurple,
                 icon: Icon(
-                  Icons.dashboard,
+                  Icons.shopping_basket,
                   color: Colors.black,
                 ),
                 activeIcon: Icon(
-                  Icons.dashboard,
+                  Icons.shopping_basket,
                   color: Colors.deepPurple,
                 ),
-                title: Text("Browse")),
-            BubbleBottomBarItem(
-                backgroundColor: Colors.indigo,
-                icon: Icon(
-                  Icons.access_time,
-                  color: Colors.black,
-                ),
-                activeIcon: Icon(
-                  Icons.access_time,
-                  color: Colors.indigo,
-                ),
-                title: Text("log")),
+                title: Text("Repo")),
             BubbleBottomBarItem(
                 backgroundColor: Colors.green,
                 icon: Icon(
@@ -256,14 +217,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
-  void _getList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      favs = (prefs.getStringList('fav') ?? List<String>());
-      print("hi $favs");
-    });
-  }
-
   callToast(String msg) {
     Fluttertoast.showToast(
         msg: "$msg",
@@ -277,11 +230,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
   Widget getChildren(int i) {
     List<Widget> _children = [
-      MapsActivity(),
-      CarsListPage(
-        lat: latitudeCurrent,
-        long: longitudeCurrent,
-      ),
+      MedicinesListPage(),
       History(),
       ProfileSettings(
         signout: signOut,
@@ -300,7 +249,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
   _onFabTap(BuildContext context) {
     setState(() => _fabVisible = false);
-    _getList();
     final RenderBox fabRenderBox = _fabKey.currentContext.findRenderObject();
     final fabSize = fabRenderBox.size;
     final fabOffset = fabRenderBox.localToGlobal(Offset.zero);
@@ -386,26 +334,34 @@ class _HomePageState extends State<HomePage> with RouteAware {
   }
 
   signOut() async {
-    var res = await CallApi().getData('logout');
-    var body = json.decode(res.body);
-    print(body.toString());
-    if (body['success']) {
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.remove('user');
-      localStorage.remove('token');
-      Navigator.pushReplacement(
-          context,
-          new MaterialPageRoute(
-              builder: (BuildContext context) => new WelcomeScreen()));
+//    var data = {
+//      'userId' : userData['userId'],
+//    };
+//    var res = await CallApi().postData(data, 'signout');
+//    var body = json.decode(res.body);
+//
+//    print(body.toString());
+//    if (!body['error']) {
+//      SharedPreferences localStorage = await SharedPreferences.getInstance();
+//      localStorage.remove('user');
+//      localStorage.remove('token');
+//      Navigator.pushReplacement(
+//          context,
+//          new MaterialPageRoute(
+//              builder: (BuildContext context) => new WelcomeScreen()));
+//
+//    }
+//    SharedPreferences localStorage = await SharedPreferences.getInstance();
+//    localStorage.remove('user');
+//    localStorage.remove('token');
+    Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(
+        builder: (BuildContext context) => new WelcomeScreen()), (e) => false);
 
-    }
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    localStorage.remove('user');
-    localStorage.remove('token');
-    Navigator.pushReplacement(
-        context,
-        new MaterialPageRoute(
-            builder: (BuildContext context) => new WelcomeScreen()));
-
+//    Navigator.pushReplacement(
+//        context,
+//        new MaterialPageRoute(
+//            builder: (BuildContext context) => new WelcomeScreen()));
+//
+//  }
   }
 }

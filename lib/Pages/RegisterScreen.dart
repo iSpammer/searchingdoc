@@ -5,10 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gocars/Main/HomePage.dart';
-import 'package:gocars/Utils/button.dart';
-import 'package:gocars/Utils/modal_progress_hud.dart';
-import 'package:gocars/api/api.dart';
+import 'package:pharmacy/Main/HomePage.dart';
+import 'package:pharmacy/Utils/button.dart';
+import 'package:pharmacy/Utils/modal_progress_hud.dart';
+import 'package:pharmacy/api/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +20,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  String name, email, mobile, password, age, nation;
+  String name, email, password;
   final _key = new GlobalKey<FormState>();
   bool _showSpinner = false;
   bool _secureText = true;
@@ -32,7 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   check() {
-    print("asdd $nation");
     final form = _key.currentState;
     if (form.validate()) {
       form.save();
@@ -45,42 +44,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   save() async {
-
-
     var data = {
       "name": name,
       "email": email,
-      "phone": mobile,
-      "password": password,
-      "age": age,
-      "nation": nation,
+      "hashed_password": password,
     };
-
-    var res = await CallApi().postData(data, 'register');
+    print("Meaw\n");
+    var res = await CallApi().postData(data, 'signup');
     var body = json.decode(res.body);
-    print("meaaaw $body");
-    if(body['success']){
+    print("meaaaw ${res.body}");
+    print("asmarany ${body['error']}");
+    if (!body['error']) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('token', body['token']);
-      print("${json.encode(body['user'])} meaaaaaw");
+//      localStorage.setString('token', body['token']);
+      print("${json.encode(body['user'])}");
       localStorage.setString('user', json.encode(body['user']));
-      setState(() {
-        Navigator.push(
-            context,
-            new CupertinoPageRoute(
-                builder: (context) => HomePage()));
-      });
-      registerToast("Please login using $email");
-    }
-    else{
-      registerToast("Error Ocured");
+      print(body['user']);
 
+      setState(
+        () {
+          Navigator.push(
+            context,
+            new CupertinoPageRoute(builder: (context) => HomePage()),
+          );
+        },
+      );
+      registerToast("Please login using $email");
+    } else {
+      registerToast("Error Ocured");
     }
 
     setState(() {
       _showSpinner = false;
     });
-
   }
 
   registerToast(String toast) {
@@ -179,33 +175,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
 
-                        //card for Mobile TextFormField
-                        Card(
-                          elevation: 6.0,
-                          child: TextFormField(
-                            validator: (e) {
-                              if (e.isEmpty) {
-                                return "Please insert Mobile Number";
-                              }
-                            },
-                            onSaved: (e) => mobile = e,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300,
-                            ),
-                            decoration: InputDecoration(
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(left: 20, right: 15),
-                                child: Icon(Icons.phone, color: Colors.black),
-                              ),
-                              contentPadding: EdgeInsets.all(18),
-                              labelText: "Mobile",
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-
                         //card for Password TextFormField
                         Card(
                           elevation: 6.0,
@@ -237,106 +206,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 contentPadding: EdgeInsets.all(18),
                                 labelText: "Password"),
                           ),
-                        ),
-
-                        //card for Age TextFormField
-                        Card(
-                          elevation: 6.0,
-                          child: TextFormField(
-                            validator: (e) {
-                              if (e.isEmpty) {
-                                return "Please insert Age Number";
-                              }
-                            },
-                            onSaved: (e) => age = e,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300,
-                            ),
-                            decoration: InputDecoration(
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(left: 20, right: 15),
-                                child: Icon(Icons.account_circle,
-                                    color: Colors.black),
-                              ),
-                              contentPadding: EdgeInsets.all(18),
-                              labelText: "Age",
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-
-                        //card for Nation TextFormField
-                        Card(
-                          elevation: 6.0,
-
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(left: 20.0, right: 15),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: nation,
-                              icon: Icon(Icons.arrow_downward),
-                              iconSize: 24,
-                              elevation: 16,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w300,
-                              ),
-                              underline: Container(
-                                height: 2,
-                                color: Colors.blue,
-                              ),
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  nation = newValue;
-                                });
-                              },
-                              hint: Row(
-                                children: <Widget>[
-                                  Icon(Icons.supervisor_account),
-                                  Text("Please Select your Nation"),
-                                ],
-                              ),
-                              items: <String>[
-                                'Egypt',
-                                'Syria',
-                                'Hell',
-                                'GUC'
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-
-//                          child: TextFormField(
-//                            validator: (e) {
-//                              if (e.isEmpty) {
-//                                return "Please Enter your nation";
-//                              }
-//                            },
-//                            onSaved: (e) => mobile = e,
-//                            style: TextStyle(
-//                              color: Colors.black,
-//                              fontSize: 16,
-//                              fontWeight: FontWeight.w300,
-//                            ),
-//                            decoration: InputDecoration(
-//                              prefixIcon: Padding(
-//                                padding: EdgeInsets.only(left: 20, right: 15),
-//                                child: Icon(Icons.supervisor_account,
-//                                    color: Colors.black),
-//                              ),
-//                              contentPadding: EdgeInsets.all(18),
-//                              labelText: "Nation",
-//                            ),
-//                            keyboardType: TextInputType.text,
-//                          ),
                         ),
 
                         Padding(

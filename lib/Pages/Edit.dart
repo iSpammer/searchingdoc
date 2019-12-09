@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gocars/Main/HomePage.dart';
+import 'package:pharmacy/Main/HomePage.dart';
 
 TextEditingController firstNameController = TextEditingController();
 TextEditingController lastNameController = TextEditingController();

@@ -1,9 +1,9 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gocars/Pages/LoginScreen.dart';
-import 'package:gocars/Pages/RegisterScreen.dart';
-import 'package:gocars/Utils/button.dart';
+import 'package:pharmacy/Pages/LoginScreen.dart';
+import 'package:pharmacy/Pages/RegisterScreen.dart';
+import 'package:pharmacy/Utils/button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -44,7 +44,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 Hero(
                   tag: "logo",
                   child: Container(
-                    child: Image.asset('images/search.png'),
+                    child: Image.asset('images/search2.png'),
                     height: 60,
                   ),
                 ),
@@ -53,9 +53,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
                 Center(
                   child: TypewriterAnimatedTextKit(
-                    text: ['GoCars!'],
+                    text: ['The Searching Doc!'],
                     textStyle: TextStyle(
-                      fontSize: 45.0,
+                      fontSize: 30.0,
                       fontWeight: FontWeight.w900,
                     ),
                     textAlign: TextAlign.center,

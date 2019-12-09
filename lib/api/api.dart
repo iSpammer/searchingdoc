@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 class CallApi{
-    final String _url = 'http://127.0.0.1:8000/api/';
-    String url = "http://127.0.0.1:8000";
+    final String _url = 'http://10.0.2.2:5000/';
+    String url = "http://10.0.2.2:5000";
     postData(data, apiUrl) async {
         var fullUrl = _url + apiUrl + await _getToken();
         return await http.post(

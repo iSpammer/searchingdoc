@@ -1,4 +1,4 @@
-# gocars
+# pharmacy
 
 A new Flutter application.
 

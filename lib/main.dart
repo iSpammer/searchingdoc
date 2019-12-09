@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gocars/MapScreen.dart';
-import 'package:gocars/Pages/IntroScreen.dart';
-import 'package:gocars/Pages/WelcomeScreen.dart';
+import 'package:pharmacy/Pages/IntroScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -67,12 +65,11 @@ class _RunnerState extends State<Runner> {
   }
   _checkLogin() async {
 
-    bool _isLoggedIn = false;
 
 //  var name = prefs.getString('username');
     // check if token is there
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-    var token = localStorage.getString('token');
+    var token = localStorage.getString('user');
     print("$token asddddd");
     if(token!= null) {
       _isLoggedIn = true;
@@ -86,13 +83,13 @@ class _RunnerState extends State<Runner> {
   @override
   Widget build(BuildContext context) {
     return  MaterialApp(
-      title: "Go Cars!",
+      title: "Pharmacy Manager!",
       home: new SplashScreen(
           seconds: 2,
           navigateAfterSeconds: _isLoggedIn == false ? IntroScreen() : HomePage(),
-          title: Text('Go Cars!'),
+          title: Text('Pharmacy Manager!'),
           loadingText: Text("Drive And Chill!"),
-          image: new Image.asset('images/search.png'),
+          image: new Image.asset('images/search2.png'),
           backgroundColor: Colors.white,
           styleTextUnderTheLoader: new TextStyle(),
           photoSize: 100.0,

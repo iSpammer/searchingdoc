@@ -4,11 +4,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gocars/Main/HomePage.dart';
-import 'package:gocars/Main/States.dart';
-import 'package:gocars/Utils/button.dart';
-import 'package:gocars/Utils/modal_progress_hud.dart';
-import 'package:gocars/api/api.dart';
+import 'package:pharmacy/Main/HomePage.dart';
+import 'package:pharmacy/Main/States.dart';
+import 'package:pharmacy/Utils/button.dart';
+import 'package:pharmacy/Utils/modal_progress_hud.dart';
+import 'package:pharmacy/api/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               tag: "logo",
                               child: Container(
                                 height: 200.0,
-                                child: Image.asset('images/search.png'),
+                                child: Image.asset('images/search2.png'),
                               ),
                             ),
                             SizedBox(
@@ -202,19 +202,20 @@ class _LoginScreenState extends State<LoginScreen> {
   login() async {
     var data = {
       'email' : email,
-      'password' : password
+      'hashed_password' : password
     };
-    var res = await CallApi().postData(data, 'login');
+    var res = await CallApi().postData(data, 'signin');
     var body = json.decode(res.body);
     setState(() {
       _showSpinner = false;
     });
     print(body);
 
-    if(body['success']){
+    if(!body['error']){
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString('token', body['token']);
       localStorage.setString('user', json.encode(body['user']));
+      print(body['user']);
       setState(() {
         _loginStatus = LoginStatus.signIn;
       });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:gocars/Pages/WelcomeScreen.dart';
+import 'package:pharmacy/Main/HomePage.dart';
+import 'package:pharmacy/Pages/WelcomeScreen.dart';
 import 'package:intro_slider/dot_animation_enum.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
@@ -344,24 +345,24 @@ class IntroScreenState extends State<IntroScreen> {
     slides.add(
       new Slide(
         title: "Search!",
-        description: "Search nearby avalabile cars to rent in on click!",
+        description: "Search avalabile medicine to store in on click!",
         pathImage: "images/search2.png",
         backgroundColor: Color(0xff203152),
       ),
     );
     slides.add(
       new Slide(
-        title: "Rent",
-        description: "Rent the car of your choice by Kilometers or per day!",
-        pathImage: "images/rent.png",
+        title: "Save!",
+        description: "Save the medicine you have on your local pharmacy!",
+        pathImage: "images/photo_ruler.png",
         backgroundColor: Color(0xfff5a623),
       ),
     );
     slides.add(
       new Slide(
-        title: "Drive",
-        description: "Drive the car and chill!",
-        pathImage: "images/drive.png",
+        title: "Manage and organize",
+        description: "Organize your phramacy digtialy!",
+        pathImage: "images/photo_pencil.png",
         backgroundColor: Color(0xff9932CC),
       ),
     );
